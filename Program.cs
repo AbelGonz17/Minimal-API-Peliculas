@@ -16,19 +16,25 @@ using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 var origenesPermitidos = builder.Configuration.GetValue<string>("origenesPermitidos")!;
+if (string.IsNullOrWhiteSpace(origenesPermitidos))
+{
+    origenesPermitidos = "http://localhost:4200"; // valor por defecto
+}
 
 //inicio area de los servicios
-
+// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Console.WriteLine("Cadena de conexión usada: " + connectionString);
 //con esto ya tenemos entityframework en nuestra api
-builder.Services.AddDbContext<ApplicationDbContext>(opciones => 
-    opciones.UseSqlServer(" name = DefaultConnection"));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddCors(opciones =>
 {
     opciones.AddDefaultPolicy(configuracion =>
     {
         configuracion.WithOrigins(origenesPermitidos).AllowAnyMethod().AllowAnyHeader();
-
     });
 
     opciones.AddPolicy("libre", configuracion =>
@@ -66,7 +72,7 @@ app.UseSwaggerUI();
 
 app.UseStaticFiles();
 
-app.UseCors();
+app.UseCors("libre");
 
 app.UseOutputCache();
 

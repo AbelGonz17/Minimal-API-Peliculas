@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+    ports:
+      - "5000:80"
+    networks:
+      - mi-red
+    depends_on:
+      - sqlserver
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MinimalPeliculasAPI;User Id=sa;Password=Ab3l1234!*;TrustServerCertificate=True;
+      - ASPNETCORE_ENVIRONMENT=Development
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Ab3l1234!*"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - mi-red
+
+networks:
+  mi-red:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
